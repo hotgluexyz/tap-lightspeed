@@ -70,11 +70,11 @@ class LightspeedStream(RESTStream):
     def clean_false_values(self, row):
         for field, value in row.items():
             if isinstance(value, list):
-                row[field] = [self.clean_false_values(val) for val in value]
+                row[field] = [self.clean_false_values(val) if isinstance(val, dict) else val for val in value]
             elif isinstance(value, dict):
                 row[field] = self.clean_false_values(value)
             else:
-                # clea false values from non boolean fields
+                # clean false values from non boolean fields
                 field_type = (
                     self.schema["properties"].get(field, {}).get("type", [""])[0]
                 )

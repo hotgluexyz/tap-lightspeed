@@ -21,6 +21,12 @@ resources = th.ObjectType(
     )
 )
 
+option = th.ObjectType(
+    th.Property("sortOrder", th.IntegerType),
+    th.Property("id", th.IntegerType),
+    th.Property("name", th.StringType),  
+)
+
 country = th.ObjectType(
     th.Property("id", th.IntegerType),
     th.Property("code", th.StringType),
@@ -60,9 +66,9 @@ class OrdersStream(LightspeedStream):
         th.Property("birthDate", th.DateTimeType),
         th.Property("nationalId", th.StringType),
         th.Property("email", th.StringType),
-        th.Property("firstName", th.StringType),
-        th.Property("middleName", th.StringType),
-        th.Property("lastName", th.StringType),
+        th.Property("firstname", th.StringType),
+        th.Property("middlename", th.StringType),
+        th.Property("lastname", th.StringType),
         th.Property("phone", th.StringType),
         th.Property("mobile", th.StringType),
         th.Property("isCompany", th.BooleanType),
@@ -189,6 +195,7 @@ class OrderLinesStream(LightspeedStream):
         th.Property("discountExcl", th.NumberType),
         th.Property("discountIncl", th.NumberType),
         th.Property("customFields", th.CustomType({"type": ["object", "string"]})),
+        th.Property("order_id", th.IntegerType),
         th.Property("product", resources),
         th.Property("variant", resources),
     ).to_dict()
@@ -216,6 +223,7 @@ class ShipmentsLinesStream(LightspeedStream):
         th.Property("totalSizeX", th.IntegerType),
         th.Property("totalSizeY", th.IntegerType),
         th.Property("totalSizeZ", th.IntegerType),
+        th.Property("order_id", th.IntegerType),
         th.Property("customer", resources),
         th.Property("order", resources),
         th.Property("products", resources),
@@ -256,7 +264,7 @@ class ProductsStream(LightspeedStream):
         th.Property("brand", resources),
         th.Property("categories", resources),
         th.Property("deliverydate", resources),
-        th.Property("image", th.StringType),
+        th.Property("image", th.CustomType({"type": ["object", "string"]})),
         th.Property("images", th.CustomType({"type": ["object", "string"]})),
         th.Property("relations", resources),
         th.Property("metafields", resources),
@@ -285,27 +293,87 @@ class VariantsStream(LightspeedStream):
         th.Property("id", th.IntegerType),
         th.Property("createdAt", th.DateTimeType),
         th.Property("updatedAt", th.DateTimeType),
-        th.Property("isVisible", th.BooleanType),
-        th.Property("depth", th.IntegerType),
-        th.Property("path", th.ArrayType(th.StringType)),
-        th.Property("type", th.StringType),
+        th.Property("isDefault", th.BooleanType),
         th.Property("sortOrder", th.IntegerType),
-        th.Property("sorting", th.StringType),
-        th.Property("url", th.StringType),
-        th.Property("title", th.StringType),
-        th.Property("fulltitle", th.StringType),
-        th.Property("description", th.StringType),
-        th.Property("content", th.StringType),
+        th.Property("articleCode", th.StringType),
+        th.Property("ean", th.StringType),
+        th.Property("sku", th.StringType),
+        th.Property("hs", th.StringType),
+        th.Property("unitPrice", th.NumberType),
+        th.Property("unitUnit", th.StringType),
+        th.Property("priceExcl", th.NumberType),
+        th.Property("priceIncl", th.NumberType),
+        th.Property("priceCost", th.NumberType),
+        th.Property("oldPriceExcl", th.NumberType),
+        th.Property("oldPriceIncl", th.NumberType),
+        th.Property("stockTracking", th.StringType),  
+        th.Property("stockLevel", th.NumberType),
+        th.Property("stockAlert", th.NumberType),
+        th.Property("stockMinimum", th.NumberType),
+        th.Property("stockSold", th.NumberType),
+        th.Property("stockBuyMininum", th.NumberType),
+        th.Property("stockBuyMaximum", th.NumberType),
+        th.Property("weight", th.NumberType),
+        th.Property("weightValue", th.StringType),
+        th.Property("weightUnit", th.StringType),
+        th.Property("volume", th.NumberType),
+        th.Property("volumeValue", th.NumberType),
+        th.Property("volumeUnit", th.StringType),  
+        th.Property("colli", th.NumberType),
+        th.Property("sizeX", th.NumberType),
+        th.Property("sizeY", th.NumberType),
+        th.Property("sizeZ", th.NumberType),
+        th.Property("sizeXValue", th.StringType),
+        th.Property("sizeYValue", th.StringType),
+        th.Property("sizeZValue", th.StringType),
+        th.Property("sizeUnit", th.StringType),
+        th.Property("matrix", th.StringType),
+        th.Property("title", th.StringType),  
+        th.Property("taxType", th.StringType),
         th.Property("image", th.CustomType({"type": ["object", "string"]})),
-        th.Property("parent", resources),
-        th.Property("children", resources),
-        th.Property("products", resources),
+        th.Property("additionalcost", th.BooleanType),
+        th.Property("options", th.ArrayType(
+            th.ObjectType(
+                th.Property("values", th.ArrayType(option)),
+                th.Property("sortOrder", th.IntegerType),
+                th.Property("id", th.IntegerType),
+                th.Property("value", option),  
+                th.Property("createdAt", th.DateTimeType),
+                th.Property("updatedAt", th.DateTimeType),
+                th.Property("name", th.StringType),
+            )
+        )),
+        th.Property("product_id", th.IntegerType),
+        th.Property("tax", resources),
+        th.Property("product", resources),
     ).to_dict()
 
     def get_url_params(self, context, next_page_token):
         params = {"product": context.get("product_id")}
         params.update(super().get_url_params(context, next_page_token))
         return params
+    
+
+class ProductsImagesStream(LightspeedStream):
+    """Define custom stream."""
+
+    name = "products_images"
+    path = "/products/{product_id}/images.json"
+    primary_keys = ["id"]
+    parent_stream_type = ProductsStream
+    records_jsonpath = "$.productImages[*]"
+    schema = th.PropertiesList(
+        th.Property("id", th.IntegerType),
+        th.Property("sortOrder", th.IntegerType),
+        th.Property("createdAt", th.DateTimeType),
+        th.Property("updatedAt", th.DateTimeType),
+        th.Property("extension", th.StringType),
+        th.Property("size", th.IntegerType),
+        th.Property("title", th.StringType),
+        th.Property("thumb", th.StringType),
+        th.Property("src", th.StringType),
+        th.Property("product_id", th.IntegerType),
+    ).to_dict()
 
 
 class CategoriesStream(LightspeedStream):
@@ -346,12 +414,19 @@ class CategoriesProductStream(LightspeedStream):
     path = "/categories/products.json"
     primary_keys = ["id"]
     records_jsonpath = "$.categoriesProducts[*]"
+    parent_stream_type = ProductsStream
     schema = th.PropertiesList(
         th.Property("id", th.IntegerType),
         th.Property("sortOrder", th.IntegerType),
+        th.Property("product_id", th.IntegerType),
         th.Property("category", resources),
         th.Property("product", resources),
     ).to_dict()
+
+    def get_url_params(self, context, next_page_token):
+        params = {"product": context.get("product_id")}
+        params.update(super().get_url_params(context, next_page_token))
+        return params
 
 
 class SuppliersStream(LightspeedStream):
