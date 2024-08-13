@@ -1,11 +1,13 @@
 """REST client handling, including LightspeedStream base class."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Callable
 
 import requests
 from pendulum import parse
 from singer_sdk.authenticators import BasicAuthenticator
 from singer_sdk.streams import RESTStream
+from singer_sdk.exceptions import RetriableAPIError
+import backoff
 
 
 class LightspeedStream(RESTStream):
@@ -85,3 +87,14 @@ class LightspeedStream(RESTStream):
     def post_process(self, row, context):
         row = self.clean_false_values(row)
         return row
+
+    def request_decorator(self, func: Callable) -> Callable:
+        decorator: Callable = backoff.on_exception(
+            backoff.expo,
+            (
+                RetriableAPIError,
+            ),
+            max_tries=10,
+            factor=3,
+        )(func)
+        return decorator
