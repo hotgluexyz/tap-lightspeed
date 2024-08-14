@@ -105,7 +105,7 @@ class OrdersStream(LightspeedStream):
         th.Property("paymentPriceExcl", th.NumberType),
         th.Property("paymentPriceIncl", th.NumberType),
         th.Property("paymentTitle", th.StringType),
-        th.Property("paymentData", th.CustomType({"type": ["object", "string"]})),
+        th.Property("paymentData", th.CustomType({"type": ["object", "string", "array"]})),
         th.Property("shipmentId", th.StringType),
         th.Property("shipmentStatus", th.StringType),
         th.Property("shipmentIsCashOnDelivery", th.BooleanType),
@@ -119,7 +119,7 @@ class OrdersStream(LightspeedStream):
         th.Property("shipmentDiscountExcl", th.NumberType),
         th.Property("shipmentDiscountIncl", th.NumberType),
         th.Property("shipmentTitle", th.StringType),
-        th.Property("shipmentData", th.CustomType({"type": ["object", "string"]})),
+        th.Property("shipmentData", th.CustomType({"type": ["object", "string", "array"]})),
         th.Property("shippingDate", th.DateTimeType),
         th.Property("taxRates", th.ArrayType(tax_rates)),
         th.Property("deliveryDate", th.DateTimeType),
@@ -451,7 +451,7 @@ class SuppliersStream(LightspeedStream):
         th.Property("zip_code", th.StringType),
         th.Property("city", th.StringType),
         th.Property("region", th.StringType),
-        th.Property("country_id", th.StringType),
+        th.Property("country_id", country),
     ).to_dict()
 
 
