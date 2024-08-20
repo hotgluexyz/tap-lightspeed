@@ -112,6 +112,7 @@ class LightspeedStream(RESTStream):
             prepared_request = self.prepare_request(
                 context, next_page_token=next_page_token
             )
+            # if throttle seconds set in config add wait time between requests
             if throttle_seconds:
                 sleep(throttle_seconds)
                 self.logger.info(f"Waiting between requests to avoid rate limits for {throttle_seconds} seconds")
