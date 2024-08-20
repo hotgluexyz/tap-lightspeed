@@ -106,12 +106,11 @@ class LightspeedStream(RESTStream):
         next_page_token: Any = None
         finished = False
         decorated_request = self.request_decorator(self._request)
-        throttle_requests = self.config.get("throttle_requests", False)
         throttle_seconds = self.config.get("throttle_seconds", 1.3)
         try:
             throttle_seconds = float(throttle_seconds)
         except:
-            self.logger.info(f"Not able to convert {throttle_seconds} to a float, using default value 1.3 seconds")
+            self.logger.info(f"Not able to convert {throttle_seconds} to a float, using throttle default value 1.3 seconds")
             throttle_seconds = 1.3
 
         while not finished:
@@ -119,9 +118,9 @@ class LightspeedStream(RESTStream):
                 context, next_page_token=next_page_token
             )
             # if throttle seconds set in config add wait time between requests
-            if throttle_requests and throttle_seconds:
-                self.logger.info(f"Waiting between requests to avoid rate limits for {throttle_seconds} seconds")
-                sleep(throttle_seconds)
+            self.logger.info(f"Waiting between requests to avoid rate limits for {throttle_seconds} seconds")
+            sleep(throttle_seconds)
+            
             resp = decorated_request(prepared_request, context)
             yield from self.parse_response(resp)
             previous_token = copy.deepcopy(next_page_token)
