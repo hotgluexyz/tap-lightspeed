@@ -1,6 +1,6 @@
 """REST client handling, including LightspeedStream base class."""
 
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Dict, Iterable, Optional, Callable
 
 import requests
 from pendulum import parse
@@ -8,6 +8,8 @@ from singer_sdk.authenticators import BasicAuthenticator
 from singer_sdk.streams import RESTStream
 from singer_sdk.exceptions import RetriableAPIError
 import backoff
+import copy
+from time import sleep
 
 
 class LightspeedStream(RESTStream):
@@ -98,3 +100,32 @@ class LightspeedStream(RESTStream):
             factor=3,
         )(func)
         return decorator
+    
+    
+    def request_records(self, context: Optional[dict]) -> Iterable[dict]:
+        next_page_token: Any = None
+        finished = False
+        decorated_request = self.request_decorator(self._request)
+        throttle_seconds = self.config.get("throttle_seconds")
+
+        while not finished:
+            prepared_request = self.prepare_request(
+                context, next_page_token=next_page_token
+            )
+            # if throttle seconds set in config add wait time between requests
+            if throttle_seconds:
+                sleep(throttle_seconds)
+                self.logger.info(f"Waiting between requests to avoid rate limits for {throttle_seconds} seconds")
+            resp = decorated_request(prepared_request, context)
+            yield from self.parse_response(resp)
+            previous_token = copy.deepcopy(next_page_token)
+            next_page_token = self.get_next_page_token(
+                response=resp, previous_token=previous_token
+            )
+            if next_page_token and next_page_token == previous_token:
+                raise RuntimeError(
+                    f"Loop detected in pagination. "
+                    f"Pagination token {next_page_token} is identical to prior token."
+                )
+            # Cycle until get_next_page_token() no longer returns a value
+            finished = not next_page_token
