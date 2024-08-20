@@ -117,10 +117,10 @@ class LightspeedStream(RESTStream):
             prepared_request = self.prepare_request(
                 context, next_page_token=next_page_token
             )
-            # if throttle seconds set in config add wait time between requests
+            # Wait between requests to avoid hitting 429
             self.logger.info(f"Waiting between requests to avoid rate limits for {throttle_seconds} seconds")
             sleep(throttle_seconds)
-            
+
             resp = decorated_request(prepared_request, context)
             yield from self.parse_response(resp)
             previous_token = copy.deepcopy(next_page_token)
