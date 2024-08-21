@@ -45,7 +45,7 @@ class LightspeedStream(RESTStream):
     ) -> Optional[Any]:
         """Return a token for identifying next page or None if no more pages."""
         previous_token = previous_token or 1
-        if len(list(self.parse_response(response))) > self.limit:
+        if len(list(self.parse_response(response))) == self.limit:
             next_page_token = previous_token + 1
             return next_page_token
 
