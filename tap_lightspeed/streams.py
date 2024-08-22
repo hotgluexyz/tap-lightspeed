@@ -194,7 +194,7 @@ class OrderLinesStream(LightspeedStream):
         th.Property("priceIncl", th.NumberType),
         th.Property("discountExcl", th.NumberType),
         th.Property("discountIncl", th.NumberType),
-        th.Property("customFields", th.CustomType({"type": ["object", "string"]})),
+        th.Property("customFields", th.CustomType({"type": ["array","object", "string"]})),
         th.Property("order_id", th.IntegerType),
         th.Property("product", resources),
         th.Property("variant", resources),
