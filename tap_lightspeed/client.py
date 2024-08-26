@@ -10,6 +10,7 @@ from singer_sdk.exceptions import RetriableAPIError
 import backoff
 import copy
 from time import sleep
+from functools import cached_property
 
 
 class LightspeedStream(RESTStream):
@@ -21,6 +22,7 @@ class LightspeedStream(RESTStream):
         return f'{self.config.get("base_url")}/{language}'
 
     replication_filter_field = None
+    end_date_param = "updated_at_max"
     limit = 250
 
     @property
@@ -55,6 +57,20 @@ class LightspeedStream(RESTStream):
             start_date = parse(self.config.get("start_date"))
         rep_key = self.get_starting_timestamp(context)
         return rep_key or start_date
+    
+    @cached_property
+    def end_date(self):
+        end_date = self.config.get("end_date")
+        if end_date is not None:
+            try:
+                end_date = parse(end_date)
+                end_date = end_date.strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+            except:
+                self.logger.info(f"Failed while trying to parse end_date {end_date}, fetching data without end_date")
+                end_date = None
+        return end_date
 
     def get_url_params(
         self, context: Optional[dict], next_page_token: Optional[Any]
@@ -65,10 +81,13 @@ class LightspeedStream(RESTStream):
         if next_page_token:
             params["page"] = next_page_token
         start_date = self.get_starting_time(context)
-        if start_date and self.replication_key and self.replication_filter_field:
-            params[self.replication_filter_field] = start_date.strftime(
-                "%Y-%m-%d %H:%M:%S"
-            )
+        if self.replication_key:
+            if start_date and self.replication_filter_field:
+                params[self.replication_filter_field] = start_date.strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
+            if self.end_date:
+                params[self.end_date_param] = self.end_date
         return params
 
     def clean_false_values(self, row):
