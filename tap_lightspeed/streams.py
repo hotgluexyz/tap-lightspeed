@@ -34,6 +34,48 @@ country = th.ObjectType(
     th.Property("title", th.StringType),
 )
 
+class ShopStream(LightspeedStream):
+    """Define custom stream."""
+
+    name = "shop"
+    path = "/shop.json"
+    primary_keys = ["id"]
+    records_jsonpath = "$.shop"
+    schema = th.PropertiesList(
+        th.Property("id", th.IntegerType),
+        th.Property("createdAt", th.DateTimeType),
+        th.Property("status", th.StringType),
+        th.Property("isB2b", th.BooleanType),
+        th.Property("isRetail", th.BooleanType),
+        th.Property("subDomain", th.StringType),
+        th.Property("mainDomain", th.StringType),
+        th.Property("email", th.StringType),
+        th.Property("phone", th.StringType),
+        th.Property("fax", th.StringType),
+        th.Property("street", th.StringType),
+        th.Property("street2", th.StringType),
+        th.Property("zipcode", th.StringType),
+        th.Property("city", th.StringType),
+        th.Property("region", th.StringType),
+        th.Property("country", country),
+        th.Property("vatNumber", th.StringType),
+        th.Property("cocNumber", th.StringType),
+        th.Property("industry", th.StringType),
+        th.Property("currency", th.ObjectType(
+            th.Property("shortcode", th.StringType),
+            th.Property("symbol", th.StringType),
+            th.Property("title", th.StringType),
+            th.Property("isDefault", th.BooleanType),
+            th.Property("currencyRate", th.StringType),
+        )),
+        th.Property("company", resources),
+        th.Property("limits", resources),
+        th.Property("javascript", resources),
+        th.Property("website", resources),
+        th.Property("scripts", resources),
+        th.Property("metafields", resources),
+    ).to_dict()
+
 
 class OrdersStream(LightspeedStream):
     """Define custom stream."""
