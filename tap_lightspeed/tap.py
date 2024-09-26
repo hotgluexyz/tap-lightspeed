@@ -34,7 +34,7 @@ class TapLightspeed(Tap):
         return [
             cls(self)
             for _, cls in inspect.getmembers(streams, inspect.isclass)
-            if cls.__module__ == "tap_lightspeed.streams"
+            if cls.__module__ == "tap_lightspeed.streams" and hasattr(cls, "name")
         ]
 
 
