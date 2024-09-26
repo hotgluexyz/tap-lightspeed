@@ -34,19 +34,6 @@ country = th.ObjectType(
     th.Property("title", th.StringType),
 )
 
-
-class Metafield(LightspeedStream):
-    primary_keys = ["id"]
-
-    schema = th.PropertiesList(
-        th.Property("id", th.IntegerType),
-        th.Property("createdAt", th.DateTimeType),
-        th.Property("updatedAt", th.DateTimeType),
-        th.Property("key", th.StringType),
-        th.Property("value", th.StringType),
-    ).to_dict()
-
-
 class ShopStream(LightspeedStream):
     """Define custom stream."""
 
@@ -256,13 +243,22 @@ class OrderLinesStream(LightspeedStream):
     ).to_dict()
 
 
-class OrderMetafieldsStream(Metafield):
+class OrderMetafieldsStream(LightspeedStream):
     """Define custom stream."""
 
     name = "order_metafields"
     path = "/orders/{order_id}/metafields.json"
     parent_stream_type = OrdersStream
     records_jsonpath = "$.orderMetafields[*]"
+
+    schema = th.PropertiesList(
+        th.Property("id", th.IntegerType),
+        th.Property("createdAt", th.DateTimeType),
+        th.Property("updatedAt", th.DateTimeType),
+        th.Property("key", th.StringType),
+        th.Property("value", th.StringType),
+        th.Property("order_id", th.IntegerType),
+    ).to_dict()
 
 
 class ShipmentsLinesStream(LightspeedStream):
@@ -440,13 +436,22 @@ class ProductsImagesStream(LightspeedStream):
     ).to_dict()
 
 
-class ProductsMetafieldsStream(Metafield):
+class ProductsMetafieldsStream(LightspeedStream):
     """Define custom stream."""
 
     name = "products_metafields"
     path = "/products/{product_id}/metafields.json"
     parent_stream_type = ProductsStream
     records_jsonpath = "$.productMetafields[*]"
+
+    schema = th.PropertiesList(
+        th.Property("id", th.IntegerType),
+        th.Property("createdAt", th.DateTimeType),
+        th.Property("updatedAt", th.DateTimeType),
+        th.Property("key", th.StringType),
+        th.Property("value", th.StringType),
+        th.Property("product_id", th.IntegerType),
+    ).to_dict()
 
 
 class CategoriesStream(LightspeedStream):
