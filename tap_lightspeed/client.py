@@ -10,7 +10,7 @@ from singer_sdk.exceptions import RetriableAPIError
 import backoff
 import copy
 from time import sleep
-from functools import cached_property
+from cached_property import cached_property
 
 
 class LightspeedStream(RESTStream):
