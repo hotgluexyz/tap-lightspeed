@@ -6,11 +6,12 @@ import requests
 from pendulum import parse
 from singer_sdk.authenticators import BasicAuthenticator
 from singer_sdk.streams import RESTStream
-from singer_sdk.exceptions import RetriableAPIError
+from singer_sdk.exceptions import RetriableAPIError, FatalAPIError
 import backoff
 import copy
 from time import sleep
 from cached_property import cached_property
+from tap_lightspeed.exceptions import TooManyRequestsError
 
 
 class LightspeedStream(RESTStream):
@@ -120,7 +121,6 @@ class LightspeedStream(RESTStream):
         )(func)
         return decorator
     
-    
     def request_records(self, context: Optional[dict]) -> Iterable[dict]:
         next_page_token: Any = None
         finished = False
@@ -153,3 +153,20 @@ class LightspeedStream(RESTStream):
                 )
             # Cycle until get_next_page_token() no longer returns a value
             finished = not next_page_token
+
+    def validate_response(self, response: requests.Response) -> None:
+        if response.status_code == 429:
+            msg = self.response_error_message(response)
+            self.logger.info(f"Response status code 429 too many requests, sleeping for 60 seconds...")
+            sleep(60)
+            self.logger.info(f"Trying request again...")
+            raise TooManyRequestsError(msg, response)
+        if (
+            response.status_code in self.extra_retry_statuses
+            or 500 <= response.status_code < 600
+        ):
+            msg = self.response_error_message(response)
+            raise RetriableAPIError(msg, response)
+        elif 400 <= response.status_code < 500:
+            msg = self.response_error_message(response)
+            raise FatalAPIError(msg)
