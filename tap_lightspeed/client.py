@@ -115,6 +115,7 @@ class LightspeedStream(RESTStream):
             backoff.expo,
             (
                 RetriableAPIError,
+                TooManyRequestsError
             ),
             max_tries=10,
             factor=3,
