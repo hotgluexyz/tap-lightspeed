@@ -12,6 +12,7 @@ import copy
 from time import sleep
 from cached_property import cached_property
 from tap_lightspeed.exceptions import TooManyRequestsError
+from http.client import ImproperConnectionState
 
 
 class LightspeedStream(RESTStream):
@@ -115,7 +116,9 @@ class LightspeedStream(RESTStream):
             backoff.expo,
             (
                 RetriableAPIError,
-                TooManyRequestsError
+                TooManyRequestsError,
+                ImproperConnectionState,
+                ConnectionError,
             ),
             max_tries=10,
             factor=3,
