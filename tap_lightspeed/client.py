@@ -104,25 +104,23 @@ class LightspeedStream(RESTStream):
         
         property = copy.deepcopy(record_property)
         if "anyOf" in property:
-            property = property["anyOf"][0]
+            try:
+                property = property["anyOf"][0]
+            except:
+                self.logger.error(f"Failed to parse record value {record_value} with property {property}, returning original value")
+                return record_value
 
         type_id = remove_null_string(property["type"])[0]
 
-        if type_id == "number":
-            return float(record_value)
+        try:    
+            if type_id == "number":
+                return float(record_value)
 
-        if type_id == "integer":
-            return int(record_value)
+            if type_id == "integer":
+                return int(record_value)
+        except:
+            self.logger.error(f"Failed to parse record value {record_value} with type {type_id}, returning original value")
 
-        if type_id == "string" and property.get("format") == "date-time":
-            return (
-                record_value
-                if isinstance(record_value, datetime_python_class)
-                else datetime_parser.parse(record_value)
-            )
-
-        if type_id == "string":
-            return str(record_value)
         return record_value
 
     def post_process(self, row, context, row_property=None):
