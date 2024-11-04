@@ -1,9 +1,12 @@
 """REST client handling, including LightspeedStream base class."""
 
+import json
 from typing import Any, Dict, Iterable, Optional, Callable
+from dateutil import parser as datetime_parser
+from datetime import datetime as datetime_python_class
 
 import requests
-from pendulum import parse
+from pendulum import datetime, parse
 from singer_sdk.authenticators import BasicAuthenticator
 from singer_sdk.streams import RESTStream
 from singer_sdk.exceptions import RetriableAPIError, FatalAPIError
@@ -92,23 +95,52 @@ class LightspeedStream(RESTStream):
                 params[self.end_date_param] = self.end_date
         return params
 
-    def clean_false_values(self, row):
-        for field, value in row.items():
-            if isinstance(value, list):
-                row[field] = [self.clean_false_values(val) if isinstance(val, dict) else val for val in value]
-            elif isinstance(value, dict):
-                row[field] = self.clean_false_values(value)
-            else:
-                # clean false values from non boolean fields
-                field_type = (
-                    self.schema["properties"].get(field, {}).get("type", [""])[0]
-                )
-                if field_type != "boolean" and value == False:
-                    row[field] = None
-        return row
+    def parse_record_value(self, record_value, record_property: dict):
+        def remove_null_string(array: list):
+            return list(filter(lambda e: e != "null", array))
 
-    def post_process(self, row, context):
-        row = self.clean_false_values(row)
+        if record_value in [None, ""]:
+            return None
+        
+        property = copy.deepcopy(record_property)
+        if "anyOf" in property:
+            try:
+                property = property["anyOf"][0]
+            except:
+                self.logger.error(f"Failed to parse record value {record_value} with property {property}, returning original value")
+                return record_value
+
+        type_id = remove_null_string(property["type"])[0]
+
+        try:    
+            if type_id == "number":
+                return float(record_value)
+
+            if type_id == "integer":
+                return int(record_value)
+        except:
+            self.logger.error(f"Failed to parse record value {record_value} with type {type_id}, returning original value")
+
+        return record_value
+
+    def post_process(self, row, context, row_property=None):
+        for field, value in row.items():
+            if row_property is None:
+                field_type_property = self.schema["properties"].get(field, {})
+            else:
+                field_type_property = row_property.get("properties", {}).get(field, {})
+            if not field_type_property:
+                continue
+            if isinstance(value, list):
+                row[field] = [self.post_process(val, context, field_type_property["items"]) if isinstance(val, dict) else val for val in value]
+            elif isinstance(value, dict):
+                row[field] = self.post_process(value, context, field_type_property)
+            else:
+                if "boolean" not in field_type_property.get("type", []):
+                    if value == False:
+                        row[field] = None
+                        continue
+            row[field] = self.parse_record_value(value, field_type_property)
         return row
 
     def request_decorator(self, func: Callable) -> Callable:
