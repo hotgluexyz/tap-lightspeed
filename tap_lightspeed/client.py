@@ -92,17 +92,26 @@ class LightspeedStream(RESTStream):
                 params[self.end_date_param] = self.end_date
         return params
 
-    def clean_false_values(self, row):
+    def clean_false_values(self, row, field_meta = None):
         for field, value in row.items():
+            # clean false values from non boolean fields
+            meta = (
+                self.schema["properties"].get(field, {})
+            )
+
             if isinstance(value, list):
-                row[field] = [self.clean_false_values(val) if isinstance(val, dict) else val for val in value]
+                row[field] = [self.clean_false_values(val, meta) if isinstance(val, dict) else val for val in value]
             elif isinstance(value, dict):
-                row[field] = self.clean_false_values(value)
+                row[field] = self.clean_false_values(value, meta)
             else:
-                # clean false values from non boolean fields
-                field_type = (
-                    self.schema["properties"].get(field, {}).get("type", [""])[0]
-                )
+                if field_meta:
+                    meta = field_meta.get("properties").get(field, {}) if field_meta.get("properties") else field_meta.get("items", dict()).get("properties", dict()).get(field, dict())
+
+                field_type = meta.get("type", [""])[0]
+
+                if isinstance(value, str) and field_type == "number":
+                    row[field] = float(value)
+
                 if field_type != "boolean" and value == False:
                     row[field] = None
         return row
