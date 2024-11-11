@@ -12,7 +12,7 @@ import copy
 from time import sleep
 from cached_property import cached_property
 from tap_lightspeed.exceptions import TooManyRequestsError
-from http.client import ImproperConnectionState
+from http.client import ImproperConnectionState, RemoteDisconnected
 
 
 class LightspeedStream(RESTStream):
@@ -128,6 +128,9 @@ class LightspeedStream(RESTStream):
                 TooManyRequestsError,
                 ImproperConnectionState,
                 ConnectionError,
+                RemoteDisconnected,
+                requests.exceptions.Timeout,
+                TimeoutError
             ),
             max_tries=10,
             factor=3,
