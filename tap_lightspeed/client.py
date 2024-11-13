@@ -1,7 +1,7 @@
 """REST client handling, including LightspeedStream base class."""
 
 from typing import Any, Dict, Iterable, Optional, Callable
-
+import urllib3
 import requests
 from pendulum import parse
 from singer_sdk.authenticators import BasicAuthenticator
@@ -132,6 +132,8 @@ class LightspeedStream(RESTStream):
                 ConnectionError,
                 RemoteDisconnected,
                 requests.exceptions.Timeout,
+                requests.exceptions.RequestException,
+                urllib3.exceptions.HTTPError,
                 TimeoutError
             ),
             max_tries=10,
