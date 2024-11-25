@@ -28,6 +28,7 @@ class LightspeedStream(RESTStream):
     replication_filter_field = None
     end_date_param = "updated_at_max"
     limit = 250
+    extra_retry_statuses = [429, 404] # there are temporary 404 for order endpoints
 
     @property
     def authenticator(self) -> BasicAuthenticator:
