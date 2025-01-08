@@ -320,12 +320,35 @@ class ProductsStream(LightspeedStream):
         th.Property("fulltitle", th.StringType),
         th.Property("description", th.StringType),
         th.Property("content", th.StringType),
-        th.Property("set", th.CustomType({"type": ["object", "string"]})),
+        th.Property("set", th.ObjectType(
+            th.Property("id", th.IntegerType),
+            th.Property("createdAt", th.DateTimeType),
+            th.Property("updatedAt", th.DateTimeType),
+            th.Property("options", th.ArrayType(th.ObjectType(
+                th.Property("id", th.IntegerType),
+                th.Property("sortOrder", th.IntegerType),
+                th.Property("name", th.StringType),
+                th.Property("values", th.ArrayType(th.ObjectType(
+                    th.Property("id", th.IntegerType),
+                    th.Property("sortOrder", th.IntegerType),
+                    th.Property("name", th.StringType)
+                )))
+            )))
+        )),
         th.Property("brand", resources),
         th.Property("categories", resources),
         th.Property("deliverydate", resources),
-        th.Property("image", th.CustomType({"type": ["object", "string"]})),
-        th.Property("images", th.CustomType({"type": ["object", "string"]})),
+        th.Property("image", th.ObjectType(
+            th.Property("id", th.IntegerType),
+            th.Property("createdAt", th.DateTimeType),
+            th.Property("updatedAt", th.DateTimeType),
+            th.Property("type", th.StringType),
+            th.Property("extension", th.StringType),
+            th.Property("size", th.IntegerType),
+            th.Property("title", th.StringType),
+            th.Property("src", th.StringType),
+        )),
+        th.Property("images", resources),
         th.Property("relations", resources),
         th.Property("metafields", resources),
         th.Property("reviews", resources),
@@ -339,7 +362,6 @@ class ProductsStream(LightspeedStream):
 
     def get_child_context(self, record: dict, context) -> dict:
         return {"product_id": record["id"]}
-
 
 class VariantsStream(LightspeedStream):
     """Define custom stream."""
@@ -390,7 +412,16 @@ class VariantsStream(LightspeedStream):
         th.Property("matrix", th.StringType),
         th.Property("title", th.StringType),  
         th.Property("taxType", th.StringType),
-        th.Property("image", th.CustomType({"type": ["object", "string"]})),
+        th.Property("image", th.ObjectType(
+            th.Property("id", th.IntegerType),
+            th.Property("createdAt", th.DateTimeType),
+            th.Property("updatedAt", th.DateTimeType),
+            th.Property("type", th.StringType),
+            th.Property("extension", th.StringType),
+            th.Property("size", th.IntegerType),
+            th.Property("title", th.StringType),
+            th.Property("src", th.StringType),
+        )),
         th.Property("additionalcost", th.BooleanType),
         th.Property("options", th.ArrayType(
             th.ObjectType(
@@ -478,7 +509,16 @@ class CategoriesStream(LightspeedStream):
         th.Property("fulltitle", th.StringType),
         th.Property("description", th.StringType),
         th.Property("content", th.StringType),
-        th.Property("image", th.CustomType({"type": ["object", "string"]})),
+        th.Property("image", th.ObjectType(
+            th.Property("id", th.IntegerType),
+            th.Property("createdAt", th.DateTimeType),
+            th.Property("updatedAt", th.DateTimeType),
+            th.Property("type", th.StringType),
+            th.Property("extension", th.StringType),
+            th.Property("size", th.IntegerType),
+            th.Property("title", th.StringType),
+            th.Property("src", th.StringType),
+        )),
         th.Property("parent", resources),
         th.Property("children", resources),
         th.Property("products", resources),
