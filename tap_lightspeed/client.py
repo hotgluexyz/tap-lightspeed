@@ -202,3 +202,6 @@ class LightspeedStream(RESTStream):
                     tap_state["bookmarks"][stream_name] = {"partitions": []}
 
         singer.write_message(StateMessage(value=tap_state))
+        
+    def get_replication_key_signpost(self, context: Optional[dict]) -> Optional[Any]:
+        return None
