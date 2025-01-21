@@ -1,6 +1,7 @@
 """REST client handling, including LightspeedStream base class."""
 
 from typing import Any, Dict, Iterable, Optional, Callable
+from pytz import timezone
 import urllib3
 import requests
 from pendulum import parse
@@ -88,7 +89,7 @@ class LightspeedStream(RESTStream):
         start_date = self.get_starting_time(context)
         if self.replication_key:
             if start_date and self.replication_filter_field:
-                params[self.replication_filter_field] = start_date.strftime(
+                params[self.replication_filter_field] = start_date.astimezone(timezone('UTC')).strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
             if self.end_date:
