@@ -369,8 +369,10 @@ class VariantsStream(LightspeedStream):
     name = "variants"
     path = "/variants.json"
     primary_keys = ["id"]
-    parent_stream_type = ProductsStream
     records_jsonpath = "$.variants[*]"
+    replication_key = "updatedAt"
+    replication_filter_field = "updated_at_min"
+    
     schema = th.PropertiesList(
         th.Property("id", th.IntegerType),
         th.Property("createdAt", th.DateTimeType),
@@ -438,12 +440,16 @@ class VariantsStream(LightspeedStream):
         th.Property("tax", resources),
         th.Property("product", resources),
     ).to_dict()
-
-    def get_url_params(self, context, next_page_token):
-        params = {"product": context.get("product_id")}
-        params.update(super().get_url_params(context, next_page_token))
-        return params
     
+    def post_process(self, record, context):
+        super().post_process(record, context)
+        if record and isinstance(record, dict) and "product" in record:
+            product = record.get("product", {})
+            if isinstance(product, dict):
+                resource = product.get("resource", {})
+                if isinstance(resource, dict):
+                    record["product_id"] = resource.get("id")
+        return record
 
 class ProductsImagesStream(LightspeedStream):
     """Define custom stream."""
