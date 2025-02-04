@@ -1,5 +1,6 @@
 """Stream type classes for tap-lightspeed."""
 
+from typing import Optional
 from singer_sdk import typing as th
 
 from tap_lightspeed.client import LightspeedStream
@@ -193,6 +194,31 @@ class OrdersStream(LightspeedStream):
         th.Property("quote", resources),
         th.Property("events", resources),
     ).to_dict()
+
+    def post_process(self, record: dict, context: Optional[dict] = None) -> Optional[dict]:
+        """Process record after retrieval.
+        
+        Args:
+            record: The record to process
+            context: Stream partition or context dictionary
+            
+        Returns:
+            The processed record, or None if it should be filtered out
+        """
+        # First apply parent class processing
+        processed_record = super().post_process(record, context)
+        
+        # Filter out records that:
+        # 1. Have no order number
+        # 2. Have not been updated since creation
+        # These are typically incomplete/irrelevant records that will be properly 
+        # synced in a future run once they are actually used
+        if (processed_record 
+            and not processed_record.get("number")
+            and processed_record.get("createdAt") == processed_record.get("updatedAt")):
+            return None
+            
+        return processed_record
 
     def get_child_context(self, record, context) -> dict:
         return {"order_id": record["id"]}
