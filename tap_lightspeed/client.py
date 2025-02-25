@@ -114,7 +114,7 @@ class LightspeedStream(RESTStream):
                 field_type = meta.get("type", [""])[0]
 
                 if isinstance(value, str) and field_type == "number":
-                    row[field] = float(value)
+                    row[field] = float(value) if value else None
 
                 if field_type != "boolean" and value == False:
                     row[field] = None
