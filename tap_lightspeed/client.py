@@ -96,7 +96,7 @@ class LightspeedStream(RESTStream):
                 params[self.end_date_param] = self.end_date
         return params
 
-    def clean_false_values(self, row, field_meta = None):
+    def clean_values(self, row, field_meta = None):
         for field, value in row.items():
             # clean false values from non boolean fields
             meta = (
@@ -104,9 +104,9 @@ class LightspeedStream(RESTStream):
             )
 
             if isinstance(value, list):
-                row[field] = [self.clean_false_values(val, meta) if isinstance(val, dict) else val for val in value]
+                row[field] = [self.clean_values(val, meta) if isinstance(val, dict) else val for val in value]
             elif isinstance(value, dict):
-                row[field] = self.clean_false_values(value, meta)
+                row[field] = self.clean_values(value, meta)
             else:
                 if field_meta:
                     meta = field_meta.get("properties").get(field, {}) if field_meta.get("properties") else field_meta.get("items", dict()).get("properties", dict()).get(field, dict())
@@ -115,13 +115,22 @@ class LightspeedStream(RESTStream):
 
                 if isinstance(value, str) and field_type == "number":
                     row[field] = float(value) if value else None
+                
+                # Lightspeed API sometimes will return integer values as True or False.
+                # This tap casts to 1 and 0 accordingly
+                if isinstance(value, bool) and field_type == "integer" and value is True:
+                    row[field] = int(value) if value else None
+
+                # Lightspeed sometimes returns nullish values as empty strings
+                if value == "" and field_type in ["integer", "number"]:
+                    row[field] = None
 
                 if field_type != "boolean" and value == False:
                     row[field] = None
         return row
 
     def post_process(self, row, context):
-        row = self.clean_false_values(row)
+        row = self.clean_values(row)
         return row
 
     def request_decorator(self, func: Callable) -> Callable:
