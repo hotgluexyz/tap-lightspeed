@@ -117,8 +117,8 @@ class LightspeedStream(RESTStream):
                     row[field] = float(value) if value else None
                 
                 # Lightspeed API sometimes will return integer values as True or False.
-                # This tap casts True to 1, and will case False to None below
-                if field_type == "integer" and value is True:
+                # Absent any documentation on why, the tap converts them to None
+                if isinstance(value, bool) and field_type == "integer":
                     row[field] = None
 
                 # Lightspeed sometimes returns nullish values as empty strings
