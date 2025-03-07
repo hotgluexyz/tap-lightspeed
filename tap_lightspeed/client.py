@@ -187,9 +187,14 @@ class LightspeedStream(RESTStream):
 
     def validate_response(self, response: requests.Response) -> None:
         if response.status_code == 429:
+            retry_after = response.headers.get("Retry-After", 60)
+            try:
+                retry_after = int(retry_after)
+            except ValueError:
+                retry_after = 60
             msg = self.response_error_message(response)
-            self.logger.info(f"Response status code 429 too many requests, sleeping for 60 seconds...")
-            sleep(60)
+            self.logger.info(f"Response status code 429 too many requests, sleeping for {retry_after} seconds...")
+            sleep(retry_after)
             self.logger.info(f"Trying request again...")
             raise TooManyRequestsError(msg, response)
         if (
