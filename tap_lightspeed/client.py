@@ -2,6 +2,10 @@
 
 from typing import Any, Dict, Iterable, Optional, Callable
 from pytz import timezone
+from time import sleep
+from datetime import datetime
+from email.utils import parsedate_to_datetime
+import requests
 import urllib3
 import requests
 from pendulum import parse
@@ -185,28 +189,31 @@ class LightspeedStream(RESTStream):
             # Cycle until get_next_page_token() no longer returns a value
             finished = not next_page_token
 
+
+
     def validate_response(self, response: requests.Response) -> None:
         if response.status_code == 429:
-            retry_after = response.headers.get("Retry-After", 60)
+            retry_after = response.headers.get("Retry-After")  
+
             try:
-                retry_after = int(retry_after)
-            except ValueError:
-                retry_after = 60
+                retry_time = parsedate_to_datetime(retry_after)
+                retry_after = (retry_time - datetime.now(timezone("UTC"))).total_seconds()
+                retry_after = max(0, int(retry_after))  
+            except Exception:
+                retry_after = 60  # Fallback in case of parsing errors
+
             msg = self.response_error_message(response)
             self.logger.info(f"Response status code 429 too many requests, sleeping for {retry_after} seconds...")
             sleep(retry_after)
-            self.logger.info(f"Trying request again...")
+            self.logger.info("Trying request again...")
             raise TooManyRequestsError(msg, response)
-        if (
-            response.status_code in self.extra_retry_statuses
-            or 500 <= response.status_code < 600
-        ):
+
+        if response.status_code in self.extra_retry_statuses or 500 <= response.status_code < 600:
             msg = self.response_error_message(response)
             raise RetriableAPIError(msg, response)
         elif 400 <= response.status_code < 500:
             msg = self.response_error_message(response)
             raise FatalAPIError(msg)
-    
     def _write_state_message(self) -> None:
         """Write out a STATE message with the latest state."""
         tap_state = self.tap_state
