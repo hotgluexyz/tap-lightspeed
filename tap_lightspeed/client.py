@@ -186,16 +186,15 @@ class LightspeedStream(RESTStream):
             # Cycle until get_next_page_token() no longer returns a value
             finished = not next_page_token
 
-
-
     def validate_response(self, response: requests.Response) -> None:
         if response.status_code == 429:
             retry_after = response.headers.get("Retry-After")  
+            self.logger.info(f"Hit 429. Retry-After: {retry_after}")
 
             try:
                 retry_time = parse(retry_after)
                 retry_after = (retry_time - datetime.now(timezone("UTC"))).total_seconds()
-                retry_after = max(0, int(retry_after))  
+                retry_after = max(1, int(retry_after))  
             except Exception:
                 retry_after = 60  # Fallback in case of parsing errors
 
