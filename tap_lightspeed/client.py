@@ -2,10 +2,7 @@
 
 from typing import Any, Dict, Iterable, Optional, Callable
 from pytz import timezone
-from time import sleep
 from datetime import datetime
-from email.utils import parsedate_to_datetime
-import requests
 import urllib3
 import requests
 from pendulum import parse
@@ -196,7 +193,7 @@ class LightspeedStream(RESTStream):
             retry_after = response.headers.get("Retry-After")  
 
             try:
-                retry_time = parsedate_to_datetime(retry_after)
+                retry_time = parse(retry_after)
                 retry_after = (retry_time - datetime.now(timezone("UTC"))).total_seconds()
                 retry_after = max(0, int(retry_after))  
             except Exception:
@@ -214,6 +211,7 @@ class LightspeedStream(RESTStream):
         elif 400 <= response.status_code < 500:
             msg = self.response_error_message(response)
             raise FatalAPIError(msg)
+
     def _write_state_message(self) -> None:
         """Write out a STATE message with the latest state."""
         tap_state = self.tap_state
