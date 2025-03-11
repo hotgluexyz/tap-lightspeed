@@ -2,6 +2,7 @@
 
 from typing import Any, Dict, Iterable, Optional, Callable
 from pytz import timezone
+from datetime import datetime
 import urllib3
 import requests
 from pendulum import parse
@@ -187,21 +188,29 @@ class LightspeedStream(RESTStream):
 
     def validate_response(self, response: requests.Response) -> None:
         if response.status_code == 429:
+            retry_after = response.headers.get("Retry-After")  
+            self.logger.info(f"Hit 429. Retry-After: {retry_after}")
+
+            try:
+                retry_time = parse(retry_after)
+                retry_after = (retry_time - datetime.now(timezone("UTC"))).total_seconds()
+                retry_after = max(1, int(retry_after))  
+            except Exception:
+                retry_after = 60  # Fallback in case of parsing errors
+
             msg = self.response_error_message(response)
-            self.logger.info(f"Response status code 429 too many requests, sleeping for 60 seconds...")
-            sleep(60)
-            self.logger.info(f"Trying request again...")
+            self.logger.info(f"Response status code 429 too many requests, sleeping for {retry_after} seconds...")
+            sleep(retry_after)
+            self.logger.info("Trying request again...")
             raise TooManyRequestsError(msg, response)
-        if (
-            response.status_code in self.extra_retry_statuses
-            or 500 <= response.status_code < 600
-        ):
+
+        if response.status_code in self.extra_retry_statuses or 500 <= response.status_code < 600:
             msg = self.response_error_message(response)
             raise RetriableAPIError(msg, response)
         elif 400 <= response.status_code < 500:
             msg = self.response_error_message(response)
             raise FatalAPIError(msg)
-    
+
     def _write_state_message(self) -> None:
         """Write out a STATE message with the latest state."""
         tap_state = self.tap_state
