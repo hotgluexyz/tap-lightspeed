@@ -1,5 +1,7 @@
 """Lightspeed tap class."""
 
+# Smoke test change
+
 import inspect
 from typing import List
 
