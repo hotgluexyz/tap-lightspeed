@@ -148,7 +148,7 @@ class LightspeedStream(RESTStream):
                 urllib3.exceptions.HTTPError,
                 TimeoutError
             ),
-            max_tries=1,
+            max_tries=10,
             factor=3,
         )(func)
         return decorator
