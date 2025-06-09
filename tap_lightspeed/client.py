@@ -203,6 +203,9 @@ class LightspeedStream(RESTStream):
             sleep(retry_after)
             self.logger.info("Trying request again...")
             raise TooManyRequestsError(msg, response)
+        
+        if response.status_code == 404 and 'Unknown or inactive language' in response.text:
+            raise FatalAPIError(f"Incorrect language specified in config: {self.config.get('language')}. Error: {response.text}")
 
         if response.status_code in self.extra_retry_statuses or 500 <= response.status_code < 600:
             msg = self.response_error_message(response)
