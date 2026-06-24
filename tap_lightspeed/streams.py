@@ -261,11 +261,12 @@ class OrderMetafieldsStream(LightspeedStream):
     ).to_dict()
 
     def post_process(self, record, context):
-        super().post_process(record, context)
-
-        """Ensure value is always a string."""
+        # Coerce ``value`` to a string before the generic cleaning runs.
+        # ``clean_values`` nulls out any non-boolean field equal to ``False``,
+        # and ``0 == False`` in Python, so a numeric ``0`` would otherwise be
+        # turned into ``None`` (and then ``""``) instead of ``"0"``.
         record["value"] = str(record["value"]) if record.get("value") is not None else ""
-        return record
+        return super().post_process(record, context)
 
 
 class ShipmentsLinesStream(LightspeedStream):
@@ -498,11 +499,12 @@ class ProductsMetafieldsStream(LightspeedStream):
     ).to_dict()
     
     def post_process(self, record, context):
-        super().post_process(record, context)
-
-        """Ensure value is always a string."""
+        # Coerce ``value`` to a string before the generic cleaning runs.
+        # ``clean_values`` nulls out any non-boolean field equal to ``False``,
+        # and ``0 == False`` in Python, so a numeric ``0`` would otherwise be
+        # turned into ``None`` (and then ``""``) instead of ``"0"``.
         record["value"] = str(record["value"]) if record.get("value") is not None else ""
-        return record
+        return super().post_process(record, context)
 
 class CategoriesStream(LightspeedStream):
     """Define custom stream."""
