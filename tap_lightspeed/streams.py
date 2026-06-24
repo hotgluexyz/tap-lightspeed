@@ -243,7 +243,21 @@ class OrderLinesStream(LightspeedStream):
     ).to_dict()
 
 
-class OrderMetafieldsStream(LightspeedStream):
+class MetafieldsStream(LightspeedStream):
+    """Base stream for metafields with shared value normalization."""
+
+    def post_process(self, record, context):
+        # ``value`` is a string field, but the API may return numbers or
+        # booleans. A boolean ``False`` (and ``None``) represents an absent
+        # value and should become ``""``. Everything else is stringified so
+        # that a numeric ``0`` is preserved as ``"0"`` rather than being
+        # nulled out by ``clean_values`` (where ``0 == False`` is ``True``).
+        value = record.get("value")
+        record["value"] = "" if value is None or value is False else str(value)
+        return super().post_process(record, context)
+
+
+class OrderMetafieldsStream(MetafieldsStream):
     """Define custom stream."""
 
     name = "order_metafields"
@@ -473,7 +487,7 @@ class ProductsImagesStream(LightspeedStream):
     ).to_dict()
 
 
-class ProductsMetafieldsStream(LightspeedStream):
+class ProductsMetafieldsStream(MetafieldsStream):
     """Define custom stream."""
 
     name = "products_metafields"
@@ -489,13 +503,7 @@ class ProductsMetafieldsStream(LightspeedStream):
         th.Property("value", th.StringType),
         th.Property("product_id", th.IntegerType),
     ).to_dict()
-    
-    def post_process(self, record, context):
-        super().post_process(record, context)
 
-        """Ensure value is always a string."""
-        record["value"] = str(record["value"]) if record.get("value") is not None else ""
-        return record
 
 class CategoriesStream(LightspeedStream):
     """Define custom stream."""
