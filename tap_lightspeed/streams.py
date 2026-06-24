@@ -261,11 +261,13 @@ class OrderMetafieldsStream(LightspeedStream):
     ).to_dict()
 
     def post_process(self, record, context):
-        # Coerce ``value`` to a string before the generic cleaning runs.
-        # ``clean_values`` nulls out any non-boolean field equal to ``False``,
-        # and ``0 == False`` in Python, so a numeric ``0`` would otherwise be
-        # turned into ``None`` (and then ``""``) instead of ``"0"``.
-        record["value"] = str(record["value"]) if record.get("value") is not None else ""
+        # ``value`` is a string field, but the API may return numbers or
+        # booleans. A boolean ``False`` (and ``None``) represents an absent
+        # value and should become ``""``. Everything else is stringified so
+        # that a numeric ``0`` is preserved as ``"0"`` rather than being
+        # nulled out by ``clean_values`` (where ``0 == False`` is ``True``).
+        value = record.get("value")
+        record["value"] = "" if value is None or value is False else str(value)
         return super().post_process(record, context)
 
 
@@ -499,11 +501,13 @@ class ProductsMetafieldsStream(LightspeedStream):
     ).to_dict()
     
     def post_process(self, record, context):
-        # Coerce ``value`` to a string before the generic cleaning runs.
-        # ``clean_values`` nulls out any non-boolean field equal to ``False``,
-        # and ``0 == False`` in Python, so a numeric ``0`` would otherwise be
-        # turned into ``None`` (and then ``""``) instead of ``"0"``.
-        record["value"] = str(record["value"]) if record.get("value") is not None else ""
+        # ``value`` is a string field, but the API may return numbers or
+        # booleans. A boolean ``False`` (and ``None``) represents an absent
+        # value and should become ``""``. Everything else is stringified so
+        # that a numeric ``0`` is preserved as ``"0"`` rather than being
+        # nulled out by ``clean_values`` (where ``0 == False`` is ``True``).
+        value = record.get("value")
+        record["value"] = "" if value is None or value is False else str(value)
         return super().post_process(record, context)
 
 class CategoriesStream(LightspeedStream):
