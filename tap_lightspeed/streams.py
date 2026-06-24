@@ -260,6 +260,13 @@ class OrderMetafieldsStream(LightspeedStream):
         th.Property("order_id", th.IntegerType),
     ).to_dict()
 
+    def post_process(self, record, context):
+        super().post_process(record, context)
+
+        """Ensure value is always a string."""
+        record["value"] = str(record["value"]) if record.get("value") is not None else ""
+        return record
+
 
 class ShipmentsLinesStream(LightspeedStream):
     """Define custom stream."""
