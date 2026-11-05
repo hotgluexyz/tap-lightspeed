@@ -187,7 +187,11 @@ class LightspeedStream(RESTStream):
             finished = not next_page_token
 
     def response_error_message(self, response: requests.Response) -> str:
-        return f"{super().response_error_message(response)}: {response.json().get('error', {}).get('message', '')}"
+        try:
+            error_message = response.json()['error']['message']
+        except:
+            return super().response_error_message(response)
+        return f"{super().response_error_message(response)}: {error_message}"
 
     def validate_response(self, response: requests.Response) -> None:
         if response.status_code == 429:
