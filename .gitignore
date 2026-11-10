@@ -136,3 +136,6 @@ dmypy.json
 .pyre/
 .vscode/
 .DS_Store
+
+__smoke-tests__/**/test_runtime/
+__smoke-tests__/unsanitized_*_test/

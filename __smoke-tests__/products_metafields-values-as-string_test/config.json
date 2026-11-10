@@ -1,0 +1,8 @@
+{
+    "base_url": "https://api.webshopapp.com",
+    "language": "nl",
+    "api_key": "API***",
+    "api_secret": "API***",
+    "start_date": "2025-02-15T00:00:00.000Z",
+    "end_date": null
+}

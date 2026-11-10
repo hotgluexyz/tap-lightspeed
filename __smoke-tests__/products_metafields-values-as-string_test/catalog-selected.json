@@ -1,0 +1,430 @@
+{
+  "streams": [
+    {
+      "tap_stream_id": "products_metafields",
+      "replication_method": "FULL_TABLE",
+      "key_properties": [],
+      "schema": {
+        "properties": {
+          "id": { "type": ["integer", "null"] },
+          "createdAt": { "format": "date-time", "type": ["string", "null"] },
+          "updatedAt": { "format": "date-time", "type": ["string", "null"] },
+          "key": { "type": ["string", "null"] },
+          "value": { "type": ["string", "null"] },
+          "product_id": { "type": ["integer", "null"] }
+        },
+        "type": "object"
+      },
+      "stream": "products_metafields",
+      "metadata": [
+        {
+          "breadcrumb": ["properties", "id"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "createdAt"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "updatedAt"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "key"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "value"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "product_id"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": [],
+          "metadata": {
+            "inclusion": "available",
+            "selected": true,
+            "table-key-properties": [],
+            "replication-method": "FULL_TABLE"
+          }
+        }
+      ]
+    },
+    {
+      "tap_stream_id": "products",
+      "replication_key": "updatedAt",
+      "replication_method": "INCREMENTAL",
+      "key_properties": ["id"],
+      "schema": {
+        "properties": {
+          "id": { "type": ["integer", "null"] },
+          "createdAt": { "format": "date-time", "type": ["string", "null"] },
+          "updatedAt": { "format": "date-time", "type": ["string", "null"] },
+          "isVisible": { "type": ["boolean", "null"] },
+          "visibility": { "type": ["string", "null"] },
+          "data01": { "type": ["string", "null"] },
+          "data02": { "type": ["string", "null"] },
+          "data03": { "type": ["string", "null"] },
+          "url": { "type": ["string", "null"] },
+          "title": { "type": ["string", "null"] },
+          "fulltitle": { "type": ["string", "null"] },
+          "description": { "type": ["string", "null"] },
+          "content": { "type": ["string", "null"] },
+          "set": {
+            "properties": {
+              "id": { "type": ["integer", "null"] },
+              "createdAt": {
+                "format": "date-time",
+                "type": ["string", "null"]
+              },
+              "updatedAt": {
+                "format": "date-time",
+                "type": ["string", "null"]
+              },
+              "options": {
+                "items": {
+                  "properties": {
+                    "id": { "type": ["integer", "null"] },
+                    "sortOrder": { "type": ["integer", "null"] },
+                    "name": { "type": ["string", "null"] },
+                    "values": {
+                      "items": {
+                        "properties": {
+                          "id": { "type": ["integer", "null"] },
+                          "sortOrder": { "type": ["integer", "null"] },
+                          "name": { "type": ["string", "null"] }
+                        },
+                        "type": "object"
+                      },
+                      "type": ["array", "null"]
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": ["array", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "brand": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "categories": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "deliverydate": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "image": {
+            "properties": {
+              "id": { "type": ["integer", "null"] },
+              "createdAt": {
+                "format": "date-time",
+                "type": ["string", "null"]
+              },
+              "updatedAt": {
+                "format": "date-time",
+                "type": ["string", "null"]
+              },
+              "type": { "type": ["string", "null"] },
+              "extension": { "type": ["string", "null"] },
+              "size": { "type": ["integer", "null"] },
+              "title": { "type": ["string", "null"] },
+              "src": { "type": ["string", "null"] }
+            },
+            "type": ["object", "null"]
+          },
+          "images": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "relations": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "metafields": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "reviews": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "type": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "attributes": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "supplier": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "tags": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "variants": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          },
+          "movements": {
+            "properties": {
+              "resource": {
+                "properties": {
+                  "id": { "type": ["integer", "null"] },
+                  "url": { "type": ["string", "null"] },
+                  "link": { "type": ["string", "null"] }
+                },
+                "type": ["object", "null"]
+              }
+            },
+            "type": ["object", "null"]
+          }
+        },
+        "type": "object"
+      },
+      "stream": "products",
+      "metadata": [
+        {
+          "breadcrumb": ["properties", "id"],
+          "metadata": { "inclusion": "automatic", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "createdAt"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "updatedAt"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "isVisible"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "visibility"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "data01"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "data02"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "data03"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "url"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "title"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "fulltitle"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "description"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "content"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "set"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "brand"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "categories"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "deliverydate"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "image"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "images"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "relations"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "metafields"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "reviews"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "type"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "attributes"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "supplier"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "tags"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "variants"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": ["properties", "movements"],
+          "metadata": { "inclusion": "available", "selected": true }
+        },
+        {
+          "breadcrumb": [],
+          "metadata": {
+            "inclusion": "available",
+            "selected": true,
+            "table-key-properties": ["id"],
+            "valid-replication-keys": ["updatedAt"],
+            "replication-method": "INCREMENTAL",
+            "replication-key": "updatedAt"
+          }
+        }
+      ]
+    }
+  ]
+}
